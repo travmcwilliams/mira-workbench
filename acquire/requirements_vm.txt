@@ -1,0 +1,31 @@
+# requirements_vm.txt - for Linux deploy target (VM)
+# This is the authoritative pinned set for the always-available VM.
+# - No packages that only exist on dev OS (e.g. windows wheels)
+# - Pin the cloud storage SDK (minor version bumps can change wire protocol and break auth)
+# - Install target Python explicitly on VM (deploy OS default is often old)
+
+duckdb==0.10.2
+pandas==2.2.2
+requests==2.32.3
+python-dotenv==1.0.1
+
+playwright==1.44.0
+pdfplumber==0.11.0
+pytesseract==0.3.10
+beautifulsoup4==4.12.3
+lxml==5.2.2
+
+python-dateutil==2.9.0.post0
+rapidfuzz==3.9.3
+
+# PINNED cloud SDK - do not bump without testing full auth flow
+azure-storage-blob==12.19.0
+azure-identity==1.16.0
+azure-keyvault-secrets==4.8.0
+
+# For OCR on VM you will also need system package: tesseract-ocr
+# For playwright: after pip install -r requirements_vm.txt  run: playwright install chromium
+
+# Local GUI (optional but recommended for this setup)
+# streamlit>=1.30
+# Run locally with: streamlit run gui/app.py  (from project root)

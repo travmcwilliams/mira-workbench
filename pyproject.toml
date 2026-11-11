@@ -1,0 +1,85 @@
+[project]
+name = "mira"
+version = "0.1.0"
+description = "MIRA — Multi-source Ingest & Records Analytics (scrape → records → data science)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Travis McWilliams" }]
+keywords = ["data-science", "automl", "scraping", "duckdb", "streamlit"]
+dependencies = [
+    "streamlit==1.39.*",
+    "pandas==2.2.*",
+    "numpy==1.26.*",
+    "pyarrow==16.*",
+    "openpyxl==3.1.*",
+    "duckdb>=0.10.0",
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+    "anthropic>=0.40",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pdfplumber>=0.10",
+    "python-dateutil>=2.8",
+    "rapidfuzz>=3.0",
+    "playwright>=1.40",
+    "scikit-learn==1.5.*",
+    "matplotlib>=3.5,<3.10",
+    "seaborn==0.13.*",
+    "plotly==5.24.*",
+    "nbformat>=5.9",
+    "pytest==8.3.*",
+    "ruff==0.6.*",
+    "mypy==1.11.*",
+]
+
+[project.optional-dependencies]
+# Heavy AutoML / profiling stack. Kept OUT of core deps: these hard-pin numpy /
+# matplotlib to mutually-incompatible ranges that make a plain `pip install` fail.
+# The app guards them at runtime, so core installs clean. Opt in when you need them:
+#   pip install -e ".[automl]"
+automl = [
+    "ydata-profiling==4.10.*",
+    "autoviz==0.1.901",
+    "xgboost==2.1.*",
+    "lightgbm==4.5.*",
+    "catboost==1.2.*",
+    "statsmodels==0.14.*",
+    "pycaret==3.3.*",
+    "shap==0.46.*",
+    "category-encoders==2.6.*",
+    "feature-engine==1.8.*",
+    "featuretools==1.31.*",
+    "kaleido==0.2.*",
+]
+
+[project.scripts]
+mira = "mira_cli:main"
+
+[tool.hatch.build.targets.wheel]
+# Flat layout (multiple top-level packages + root modules, no single package dir):
+# hatchling cannot auto-detect what to ship, so we select explicitly. dev-mode-dirs puts
+# the repo root on sys.path for editable installs so every top-level import resolves.
+only-include = ["acquire", "core", "pages", "scripts", "stages", "ui", "app.py", "mira_cli.py", "run_headless.py"]
+dev-mode-dirs = ["."]
+
+[tool.uv]
+dev-dependencies = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

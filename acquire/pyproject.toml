@@ -1,0 +1,20 @@
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+extend-exclude = [
+    ".venv",
+    "data",
+]
+
+[tool.ruff.lint]
+# Pyflakes (F) + pycodestyle errors/warnings (E, W) + isort (I).
+select = ["E", "F", "W", "I"]
+# E402: module-level import not at top — deliberate repo pattern (sys.path/env
+# setup must run before internal imports). E501: long lines tolerated.
+ignore = ["E402", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# __init__.py files re-export the package's public API; unused imports there
+# are intentional.
+"__init__.py" = ["F401"]

@@ -1,0 +1,28 @@
+# requirements.txt - for dev (current OS, e.g. Windows + Cursor)
+# Use this for local iteration.
+
+duckdb>=0.10.0
+pandas>=2.0
+requests>=2.31
+python-dotenv>=1.0
+openpyxl>=3.1   # for xlsx in dev
+
+# Scraping & parsing (install playwright chromium separately)
+playwright>=1.40
+pdfplumber>=0.10
+pytesseract>=0.3
+beautifulsoup4>=4.12
+lxml>=5.0
+
+# Intelligence / matching
+python-dateutil>=2.8
+rapidfuzz>=3.0
+
+# Cloud (dev - pin exact in vm for prod)
+# azure-storage-blob==12.19.0   # EXAMPLE - pin the version that matches your vault
+# azure-identity
+# azure-keyvault-secrets
+
+# UI / product - local GUI (fully local, no cloud)
+streamlit>=1.30
+# stripe  # for future billing if productizing

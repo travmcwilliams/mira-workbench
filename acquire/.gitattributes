@@ -1,0 +1,26 @@
+# Normalize all text files to LF in the repo (checkout LF everywhere too).
+# Keeps line endings consistent between Windows laptop and Linux VM.
+* text=auto eol=lf
+
+# Explicit text types
+*.py    text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.txt   text eol=lf
+*.toml  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+*.sh    text eol=lf
+.gitignore     text eol=lf
+.gitattributes text eol=lf
+.env.template  text eol=lf
+
+# Binary types — never normalize
+*.duckdb binary
+*.xlsx   binary
+*.zip    binary
+*.png    binary
+*.jpg    binary
+*.pdf    binary

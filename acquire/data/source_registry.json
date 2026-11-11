@@ -1,0 +1,54 @@
+{
+  "sources": [
+    {
+      "source_id": "00001",
+      "source_name": "Demo Grant Agency - Alpha",
+      "region": "00",
+      "region_full": "Demo Region Zero",
+      "source_url": "https://example-data.local/grants/alpha.csv",
+      "scraper_type": "has_download_link",
+      "data_method": "scrape",
+      "last_scraped": "2026-06-09T00:28:25.170771+00:00"
+    },
+    {
+      "source_id": "00002",
+      "source_name": "Demo Grant Agency - Beta (Search Form)",
+      "region": "00",
+      "region_full": "Demo Region Zero",
+      "source_url": "https://example-data.local/grants/beta/search",
+      "scraper_type": "has_search_form",
+      "data_method": "scrape",
+      "last_scraped": null
+    },
+    {
+      "source_id": "00003",
+      "source_name": "Demo Aggregator Platform C",
+      "region": "US",
+      "region_full": "United States",
+      "source_url": "https://platform-c.example.com/grants",
+      "scraper_type": "has_record_link",
+      "data_method": "scrape",
+      "last_scraped": null
+    },
+    {
+      "source_id": "00004",
+      "source_name": "New Local Source",
+      "region": "00",
+      "region_full": "Demo Region",
+      "source_url": null,
+      "scraper_type": "has_download_link",
+      "data_method": "scrape",
+      "last_scraped": null
+    },
+    {
+      "source_id": "REAL001",
+      "source_name": "Test Real Site - US Airport Traffic (Public Open Data)",
+      "region": "US",
+      "region_full": "United States",
+      "source_url": "https://raw.githubusercontent.com/plotly/datasets/master/2011_february_us_airport_traffic.csv",
+      "scraper_type": "has_download_link",
+      "data_method": "scrape",
+      "last_scraped": "2026-11-11T23:39:47.652692+00:00"
+    }
+  ]
+}

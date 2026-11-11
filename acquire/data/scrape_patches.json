@@ -1,0 +1,155 @@
+{
+  "patches": [
+    {
+      "patch_id": "grants-keyword-direct",
+      "name": "Grants - Keyword + Format Direct",
+      "description": "Template for direct file downloads. Customize the domain for real grant portals.",
+      "url_style": "template",
+      "url_template": "https://data.example.gov/grants/{term}.{fmt}",
+      "scrape_strategy": "direct_download",
+      "default_scraper_type": "has_download_link",
+      "supported_formats": ["csv", "xlsx", "pdf", "json"],
+      "term_style": "slug",
+      "term_examples": ["education", "health", "infrastructure", "rural-development"],
+      "default_mapping": {},
+      "notes": "Replace example.gov with a real site. Good base for many agency open data downloads."
+    },
+    {
+      "patch_id": "datagov-ckan-search",
+      "name": "Data.gov Catalog (real CKAN)",
+      "description": "Real US federal open data catalog at catalog.data.gov. Uses q= for keyword and res_format for file type. Excellent for discovering federal grant, contract, and program data.",
+      "url_style": "query",
+      "base_url": "https://catalog.data.gov/dataset/",
+      "query_params": {
+        "q": "{term}",
+        "res_format": "{fmt}",
+        "sort": "metadata_modified desc"
+      },
+      "scrape_strategy": "fetch_page_then_extract_links",
+      "default_scraper_type": "has_search_form",
+      "supported_formats": ["CSV", "XLSX", "JSON", "PDF", "ZIP"],
+      "term_style": "raw",
+      "term_examples": ["grant", "funding opportunity", "small business", "climate resilience", "rural health"],
+      "link_exts": [".csv", ".xlsx", ".zip", ".json"],
+      "default_mapping": {},
+      "supports_dates": true,
+      "pagination": {
+        "type": "page",
+        "param": "page",
+        "start": 1,
+        "count": 3
+      },
+      "notes": "This is a REAL target. Results pages usually contain resource download buttons. Use 'Use link extraction' for best results. Add date filters via the date pickers."
+    },
+    {
+      "patch_id": "chicago-open-data",
+      "name": "City of Chicago Open Data (real Socrata)",
+      "description": "Real Chicago open data portal. Great for business licenses, permits, contracts, payments, etc. Many datasets export directly as CSV.",
+      "url_style": "query",
+      "base_url": "https://data.cityofchicago.org/",
+      "query_params": {
+        "q": "{term}"
+      },
+      "scrape_strategy": "fetch_page_then_extract_links",
+      "default_scraper_type": "has_search_form",
+      "supported_formats": ["csv", "json"],
+      "term_style": "raw",
+      "term_examples": ["business licenses", "building permits", "vendor payments", "contracts", "taxi trips"],
+      "link_exts": [".csv", ".json"],
+      "default_mapping": {},
+      "notes": "REAL portal: https://data.cityofchicago.org/ . Search the catalog, then use link extraction or target specific known dataset IDs for direct /api/views/XXXX/rows.csv exports."
+    },
+    {
+      "patch_id": "nyc-open-data",
+      "name": "NYC Open Data (real)",
+      "description": "New York City open data portal (Socrata). Huge collection of city operational data.",
+      "url_style": "query",
+      "base_url": "https://data.cityofnewyork.us/",
+      "query_params": {
+        "q": "{term}"
+      },
+      "scrape_strategy": "fetch_page_then_extract_links",
+      "default_scraper_type": "has_search_form",
+      "supported_formats": ["csv"],
+      "term_style": "raw",
+      "term_examples": ["business", "permits", "contracts", "grants", "311"],
+      "link_exts": [".csv"],
+      "default_mapping": {},
+      "notes": "Real target. Use for NYC-specific intelligence. Link extraction works well on result pages."
+    },
+    {
+      "patch_id": "public-csv-airport-style",
+      "name": "Public Tabular CSV (real public data demo)",
+      "description": "Uses a real publicly hosted CSV for end-to-end testing.",
+      "url_style": "template",
+      "url_template": "https://raw.githubusercontent.com/plotly/datasets/master/{term}.csv",
+      "scrape_strategy": "direct_download",
+      "default_scraper_type": "has_download_link",
+      "supported_formats": ["csv"],
+      "term_style": "raw",
+      "term_examples": ["2011_february_us_airport_traffic"],
+      "default_mapping": {
+        "iata": "record_id",
+        "airport": "entity_name",
+        "city": "location_text",
+        "cnt": "primary_value"
+      },
+      "notes": "This one is fully live and will actually download + ingest real rows."
+    },
+    {
+      "patch_id": "sam-contract-opportunities",
+      "name": "SAM.gov Contract Opportunities (demo pattern)",
+      "description": "Federal contract search pattern. Good for opportunity monitoring with date filters.",
+      "url_style": "query",
+      "base_url": "https://sam.gov/api/prod/opps/v1/search",
+      "query_params": {
+        "q": "{term}",
+        "format": "{fmt}",
+        "dateFrom": "{start_date}",
+        "dateTo": "{end_date}",
+        "limit": "100"
+      },
+      "scrape_strategy": "fetch_page_then_extract_links",
+      "default_scraper_type": "has_record_link",
+      "supported_formats": ["json", "csv"],
+      "term_style": "raw",
+      "term_examples": ["construction", "IT services", "research", "training", "cybersecurity"],
+      "link_exts": [".csv", ".json", ".zip"],
+      "default_mapping": {},
+      "supports_dates": true,
+      "notes": "Uses realistic SAM.gov search API shape. Results are often JSON; the extraction path can help surface downloadable attachments."
+    },
+    {
+      "patch_id": "generic-search-results",
+      "name": "Generic Search Results Page",
+      "description": "Flexible search page builder for any portal with keyword search in the URL.",
+      "url_style": "query",
+      "base_url": "https://example.com/search",
+      "query_params": {
+        "keywords": "{term}",
+        "type": "{fmt}"
+      },
+      "scrape_strategy": "fetch_page",
+      "default_scraper_type": "has_search_form",
+      "supported_formats": ["html", "any"],
+      "term_style": "quoted",
+      "term_examples": ["grant opportunities 2025", "funding awards"],
+      "default_mapping": {},
+      "notes": "Good starting template. Switch to fetch_page_then_extract_links and set link_exts for many real sites."
+    },
+    {
+      "patch_id": "custom-url-template",
+      "name": "Custom / Ad-hoc URL Template (real examples included)",
+      "description": "Highest flexibility. The GUI lets you override the template live. Pre-filled examples include real public patterns.",
+      "url_style": "template",
+      "url_template": "https://catalog.data.gov/dataset/?q={term}&res_format={fmt}",
+      "scrape_strategy": "fetch_page_then_extract_links",
+      "default_scraper_type": "has_search_form",
+      "supported_formats": ["csv", "xlsx", "pdf", "json", "zip"],
+      "term_style": "raw",
+      "term_examples": ["small business grant", "climate"],
+      "default_mapping": {},
+      "notes": "Start with the real data.gov example above, or paste any portal search URL containing {term} and {fmt}. Supports {start_date} too when you set dates."
+    }
+  ]
+}

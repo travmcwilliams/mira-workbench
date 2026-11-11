@@ -1,0 +1,217 @@
+# Mira Source Registry — configuration & seed (config-as-data)
+#
+# This is the governance layer for WHICH parts of the internet Mira attends to,
+# HOW to crawl them, and HOW MUCH to trust the result. Thresholds and weights are
+# DATA here, never hard-coded in Python (domain logic lives in data).
+#
+# Reconciled to Mira's local-first DuckDB stack — see registry/README.md.
+
+# ---------------------------------------------------------------------------
+# Composite "Mira Source Score" = weighted sum of seven 0..1 component scores,
+# scaled to 0..100. Weights MUST sum to 1.0 (validated at load).
+# ---------------------------------------------------------------------------
+scoring_weights:
+  authority: 0.25       # peer citation / editorial standing
+  readership: 0.20      # monthly visits / rank
+  engagement: 0.15      # likes/comments/shares per item
+  citation: 0.15        # inbound links / academic citations
+  freshness: 0.10       # recency of last observed activity
+  topical_relevance: 0.10
+  accessibility: 0.05   # legal/ToS reachability (higher = easier & permitted)
+
+# Log-normalization caps used to turn raw metrics into 0..1 components.
+# A metric at or above its cap scores ~1.0; scaling is log10 to compress heavy tails
+# (global web traffic is extremely concentrated — arXiv 2404.17095).
+norm_caps:
+  monthly_visits: 1000000000     # 1e9
+  followers: 1000000000
+  subscribers: 1000000000
+  avg_views: 100000000
+  citation_count: 1000000
+  inbound_links: 10000000
+  engagement_rate: 0.20          # 20% engagement ~ ceiling
+  freshness_halflife_days: 30    # score halves every 30 days since last activity
+
+# ---------------------------------------------------------------------------
+# Inclusion rules. Popularity is ONE input, not the gate. A source is INCLUDED if
+# any active rule matches (filters are wildcards when null; a rule fires when its
+# category/type/country filters match AND at least one threshold is met).
+# Override flags on the source itself (official_government / official_incident_feed /
+# academic_repository) admit it regardless of audience — evaluated before thresholds.
+# ---------------------------------------------------------------------------
+inclusion_rules:
+  - rule_name: global_news_traffic
+    source_type: null
+    category_name: global_news
+    min_monthly_visits: 1000000
+    min_authority_score: 60
+    priority: 10
+  - rule_name: local_news_traffic
+    category_name: local_news
+    min_monthly_visits: 100000
+    include_if_local_official: true
+    priority: 20
+  - rule_name: social_account_reach
+    source_type: social_platform_account
+    min_followers: 100000
+    min_avg_views: 50000
+    priority: 30
+  - rule_name: youtube_channel_reach
+    source_type: youtube_channel
+    min_subscribers: 100000
+    min_avg_views: 25000
+    priority: 30
+  - rule_name: research_indexed
+    source_type: academic_repository
+    include_if_academic: true
+    priority: 15
+  - rule_name: official_or_incident
+    include_if_government: true
+    include_if_incident_feed: true
+    priority: 5
+
+# ---------------------------------------------------------------------------
+# SEEDS — Phase 1 high-authority spine. Not "every source"; the discovery pipeline
+# grows the rest. platform_name / category_name / source_url are the natural keys
+# used for idempotent upserts (re-seeding is safe).
+# ---------------------------------------------------------------------------
+categories:
+  - {name: global_news}
+  - {name: us_news}
+  - {name: local_news}
+  - {name: politics}
+  - {name: geopolitics}
+  - {name: markets, description: financial markets}
+  - {name: macroeconomics}
+  - {name: central_banks}
+  - {name: technology}
+  - {name: ai}
+  - {name: cybersecurity}
+  - {name: science}
+  - {name: health}
+  - {name: disaster}
+  - {name: incident}
+  - {name: studies_research}
+  - {name: social_viral}
+
+platforms:
+  - {platform_name: Reuters, platform_type: news_site, homepage_url: "https://www.reuters.com", rss_supported: true, crawl_method_default: rss}
+  - {platform_name: Associated Press, platform_type: news_site, homepage_url: "https://apnews.com", rss_supported: true, crawl_method_default: rss}
+  - {platform_name: YouTube, platform_type: video_platform, homepage_url: "https://www.youtube.com", api_available: true, crawl_method_default: youtube_api, auth_required: true}
+  - {platform_name: X, platform_type: social_network, homepage_url: "https://x.com", api_available: true, crawl_method_default: x_api, auth_required: true}
+  - {platform_name: Reddit, platform_type: forum, homepage_url: "https://www.reddit.com", api_available: true, rss_supported: true, crawl_method_default: reddit_api}
+  - {platform_name: arXiv, platform_type: research_repository, homepage_url: "https://arxiv.org", api_available: true, rss_supported: true, crawl_method_default: api}
+  - {platform_name: PubMed, platform_type: research_repository, homepage_url: "https://pubmed.ncbi.nlm.nih.gov", api_available: true, rss_supported: true, crawl_method_default: pubmed_api}
+  - {platform_name: GDELT, platform_type: aggregator, homepage_url: "https://www.gdeltproject.org", api_available: true, crawl_method_default: gdelt}
+  - {platform_name: USGS Earthquake Hazards, platform_type: incident_feed, homepage_url: "https://earthquake.usgs.gov", api_available: true, rss_supported: true, crawl_method_default: api}
+  - {platform_name: Web, platform_type: news_site, homepage_url: null, rss_supported: true, crawl_method_default: html}
+
+# Each source: canonical_name, source_url (natural key), source_type, platform (name),
+# categories (list of category names), flags, and an optional crawl policy override.
+sources:
+  - canonical_name: Reuters
+    source_type: wire_service
+    platform: Reuters
+    country_code: GB
+    primary_language: en
+    source_url: "https://www.reuters.com"
+    rss_url: "https://www.reuters.com/arc/outboundfeeds/rss/"
+    categories: [global_news, markets, politics]
+    crawl: {crawl_method: rss, crawl_frequency: hourly, terms_risk_level: medium}
+    access: {legal_risk_level: medium, scraping_allowed: false, api_required: false}
+  - canonical_name: Associated Press
+    source_type: wire_service
+    platform: Associated Press
+    country_code: US
+    primary_language: en
+    source_url: "https://apnews.com"
+    categories: [global_news, politics, local_news]
+    crawl: {crawl_method: rss, crawl_frequency: hourly, terms_risk_level: medium}
+  - canonical_name: BBC News
+    source_type: broadcast_news
+    platform: Web
+    country_code: GB
+    primary_language: en
+    source_url: "https://www.bbc.com/news"
+    rss_url: "https://feeds.bbci.co.uk/news/rss.xml"
+    categories: [global_news, politics]
+    crawl: {crawl_method: rss, crawl_frequency: hourly, terms_risk_level: low}
+  - canonical_name: Federal Reserve
+    source_type: central_bank
+    platform: Web
+    country_code: US
+    primary_language: en
+    official_government: true
+    source_url: "https://www.federalreserve.gov"
+    categories: [macroeconomics, central_banks, markets]
+    crawl: {crawl_method: html, crawl_frequency: daily, terms_risk_level: low}
+    access: {legal_risk_level: low, scraping_allowed: true, commercial_use_allowed: true}
+  - canonical_name: U.S. Bureau of Labor Statistics
+    source_type: government_agency
+    platform: Web
+    country_code: US
+    primary_language: en
+    official_government: true
+    source_url: "https://www.bls.gov"
+    categories: [macroeconomics]
+    crawl: {crawl_method: api, crawl_frequency: daily, terms_risk_level: low}
+  - canonical_name: arXiv
+    source_type: academic_repository
+    platform: arXiv
+    country_code: US
+    primary_language: en
+    academic_repository: true
+    source_url: "https://arxiv.org"
+    rss_url: "http://export.arxiv.org/rss/cs.AI"
+    categories: [studies_research, ai, science]
+    crawl: {crawl_method: api, crawl_frequency: daily, terms_risk_level: low}
+    access: {legal_risk_level: low, scraping_allowed: true, api_required: true}
+  - canonical_name: PubMed
+    source_type: academic_repository
+    platform: PubMed
+    country_code: US
+    primary_language: en
+    academic_repository: true
+    source_url: "https://pubmed.ncbi.nlm.nih.gov"
+    categories: [studies_research, health]
+    crawl: {crawl_method: pubmed_api, crawl_frequency: daily, terms_risk_level: low}
+  - canonical_name: GDELT Project
+    source_type: aggregator
+    platform: GDELT
+    country_code: US
+    primary_language: en
+    official_incident_feed: true
+    source_url: "https://www.gdeltproject.org"
+    categories: [geopolitics, incident, global_news]
+    crawl: {crawl_method: gdelt, crawl_frequency: daily, terms_risk_level: low}
+    access: {legal_risk_level: low, scraping_allowed: true}
+  - canonical_name: USGS Earthquake Hazards Program
+    source_type: incident_feed
+    platform: USGS Earthquake Hazards
+    country_code: US
+    primary_language: en
+    official_incident_feed: true
+    official_government: true
+    source_url: "https://earthquake.usgs.gov"
+    categories: [disaster, incident]
+    crawl: {crawl_method: api, crawl_frequency: realtime, terms_risk_level: low}
+    access: {legal_risk_level: low, scraping_allowed: true, commercial_use_allowed: true}
+  - canonical_name: TechCrunch
+    source_type: tech_news
+    platform: Web
+    country_code: US
+    primary_language: en
+    source_url: "https://techcrunch.com"
+    rss_url: "https://techcrunch.com/feed/"
+    categories: [technology, ai]
+    crawl: {crawl_method: rss, crawl_frequency: hourly, terms_risk_level: medium}
+  - canonical_name: CISA
+    source_type: government_agency
+    platform: Web
+    country_code: US
+    primary_language: en
+    official_government: true
+    official_incident_feed: true
+    source_url: "https://www.cisa.gov"
+    categories: [cybersecurity, incident]
+    crawl: {crawl_method: rss, crawl_frequency: daily, terms_risk_level: low}

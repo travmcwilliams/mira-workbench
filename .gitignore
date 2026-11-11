@@ -1,0 +1,217 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Generated news-sentiment series + study tables (rebuild via scripts/news_backfill.py
+# and scripts/news_return_study.py) and the Wayback response cache.
+data/sample/news_wayback*.csv
+data/sample/news_return_study*.csv
+
+# Large generated stock panels (rebuild via scripts/build_stock_panel*.py)
+data/sample/stock_daily_features_500.csv
+data/sample/stock_daily_features_1000.csv
+data/sample/stock_daily_features_full_*.parquet
+data/sample/stock_daily_features_full_*.csv
+data/sample/stock_daily_features_full_*.manifest.json
+data/sample/stock_panel_*.csv
+
+# Large generated quant-experiment outputs (rebuild via scripts/run_quant_experiments.py)
+data/experiments/
+
+# User data (the actual projects with datasets, models, artifacts)
+projects/
+projects/_smoke_scratch/
+reports/
+
+# Acquire runtime data
+acquire/db/*.duckdb
+acquire/db/*.duckdb.wal
+acquire/data/raw/
+# Scraper run telemetry: RunLogger rewrites this whole file on every event, so
+# it churns thousands of diff lines per run, embeds machine-local absolute paths
+# and temp dirs, and re-serializes (and has once corrupted) older entries.
+# RunLogger._load treats a missing file as an empty log, so a clone needs none.
+acquire/data/scraper_run_log.json
+.env
+.venv/
+.venv311/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sandboxed engine runs (codex --basetemp) leave this with AppContainer ACLs
+.pytest_tmp/
+
+# Prediction-market probe data - regenerable, multi-hundred-MB CSVs (exceed GitHub limits)
+data/predmarkets/
+
+# Browser sessions / cookies
+.session/
+
+# Regenerable scrape dumps (rebuild via acquire.crawlers.*). Not source.
+data/scout/
+data/ocr_cache/
+
+# --- Data safety net -------------------------------------------------------
+# Everything under data/ is ignored by default. Only small, synthetic or public
+# samples are allow-listed below; add new ones explicitly and on purpose.
+data/*
+!data/sample/
+!data/study/
+!data/earnings/
+data/sample/*
+!data/sample/boston_sample.csv
+!data/sample/restaurant_daily_sample.csv
+!data/sample/restaurant_labor_sample.csv
+!data/sample/news_ticker_study_narrow.csv
+!data/sample/news_ticker_study_narrow_model.csv
+!data/sample/stock_daily_features.csv
+
+# Local databases / columnar dumps anywhere in the tree
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+
+# Local agent / editor config
+.claude/
+CLAUDE.md
+.vscode/
+.idea/

@@ -1,0 +1,3 @@
+# The embedded DB (app.duckdb) lives here at runtime.
+# .gitignore ignores the actual .duckdb file; this keeps the directory.
+# On fresh clone: python scripts/rebuild_db.py

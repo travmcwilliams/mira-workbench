@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "notes": "Market->macro-theme rules. First match wins, so specific themes precede broad ones. exclude patterns drop high-frequency ladder families (daily weather/price ladders) that are bets on noise, not macro events. Unmatched markets land in 'unmapped' for review — never silently dropped.",
+  "exclude_patterns": [
+    "highest temperature", "lowest temperature", "temperature in",
+    "up or down on", "close above", "close between", "close at",
+    "price of bitcoin", "price of ethereum", "floor price",
+    "how many tweets", "say during", "mention", "how many times"
+  ],
+  "themes": [
+    {
+      "key": "inflation",
+      "any_keywords": ["cpi", "inflation", "pce ", "core pce", "price index"]
+    },
+    {
+      "key": "rates_fed",
+      "any_keywords": ["fed ", "fomc", "federal reserve", "rate cut", "rate hike",
+                       "interest rate", "powell", "basis points", "fed funds"]
+    },
+    {
+      "key": "recession_growth",
+      "any_keywords": ["recession", "gdp", "unemployment", "jobs report",
+                       "nonfarm", "payroll", "jobless", "soft landing"]
+    },
+    {
+      "key": "fiscal",
+      "any_keywords": ["shutdown", "debt ceiling", "debt limit", "budget",
+                       "stimulus", "tax bill", "spending bill", "appropriations",
+                       "default on its debt"]
+    },
+    {
+      "key": "trade_tariffs",
+      "any_keywords": ["tariff", "trade deal", "trade war", "trade agreement",
+                       "sanction", "export control", "embargo"]
+    },
+    {
+      "key": "energy",
+      "any_keywords": ["oil ", "opec", "crude", "wti", "brent", "gas price",
+                       "gasoline", "natural gas", "strategic petroleum"]
+    },
+    {
+      "key": "geopolitics",
+      "any_keywords": ["ukraine", "russia", "putin", "zelensky", "taiwan",
+                       "china invade", "iran", "israel", "gaza", "hezbollah",
+                       "hamas", "houthis", "yemen", "syria", "kremlin",
+                       "nato", "north korea", "ceasefire", "war ", "invasion",
+                       "nuclear", "missile", "military strike", "airstrike",
+                       "attack", "hostage", "peace deal", "annex", "coup",
+                       "territory", "troops"]
+    },
+    {
+      "key": "elections_us",
+      "any_keywords": ["presidential election", "president in", "electoral",
+                       "senate", "house of representatives", "governor",
+                       "primary", "nominee", "nomination", "midterm",
+                       "popular vote", "swing state", "win the u.s.",
+                       "presidency", "impeach", "cabinet", "supreme court",
+                       "gop", "republican", "democrat", "rnc", "dnc",
+                       "ballot", "endorse", "drop out", "congressional",
+                       "congress", "speaker", "veto", "executive order",
+                       "white house", "trump", "biden", "harris", "vance",
+                       "presidential race", "attorney general", "confirmation"]
+    },
+    {
+      "key": "elections_world",
+      "any_keywords": ["prime minister", "chancellor", "parliament",
+                       "president of", "election in", "referendum", "coalition",
+                       "most seats", "win seats", "snap election",
+                       "presidential runoff", "next president"]
+    },
+    {
+      "key": "crypto_policy",
+      "any_keywords": ["bitcoin etf", "ethereum etf", "sec approve", "crypto bill",
+                       "stablecoin bill", "cbdc", "crypto regulation"]
+    }
+  ],
+  "tag_fallbacks": {
+    "politics": "politics_other",
+    "elections": "politics_other",
+    "geopolitics": "geopolitics",
+    "world": "geopolitics",
+    "fed": "rates_fed",
+    "inflation": "inflation",
+    "economy": "macro_other",
+    "finance": "macro_other",
+    "business": "macro_other",
+    "companies": "macro_other",
+    "energy": "energy",
+    "climate": "climate",
+    "tariffs": "trade_tariffs",
+    "recession": "recession_growth",
+    "tech": "tech_science",
+    "science": "tech_science",
+    "legacy-idwalk": "legacy_other"
+  }
+}

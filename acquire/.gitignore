@@ -1,0 +1,33 @@
+# DSI platform
+.env
+*.duckdb
+*.duckdb.wal
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/raw/**/*
+data/remote_backup/
+# DB binary lives here at runtime but must not be committed (recreate with scripts/rebuild_db.py)
+db/app.duckdb
+db/*.wal
+!db/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Azure / cloud local
+*.publishsettings
+*.pubxml
+
+# Large data
+*.zip
+*.xlsx
+*.csv
+!data/raw/00001/grants_alpha_2025.csv   # the tiny demo file is fine

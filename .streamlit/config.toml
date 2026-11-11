@@ -1,0 +1,26 @@
+# MIRA global theme — GitHub-dark palette.
+# This themes NATIVE Streamlit widgets (tables, tabs, inputs, menus) that
+# CSS injection can't fully reach. Layered card/pill/hero styling lives in
+# ui/theme.py::inject_theme(). chartCategoricalColors matches the
+# PLOTLY_TEMPLATE colorway there so native and Plotly charts agree.
+[theme]
+base = "dark"
+primaryColor = "#1f6feb"
+backgroundColor = "#0d1117"
+secondaryBackgroundColor = "#161b22"
+textColor = "#e6edf3"
+linkColor = "#79c0ff"
+borderColor = "#21262d"
+font = "sans serif"
+baseRadius = "10px"
+buttonRadius = "8px"
+showWidgetBorder = true
+dataframeBorderColor = "#21262d"
+chartCategoricalColors = ["#1f6feb", "#3fb950", "#e3b341", "#f778ba", "#79c0ff", "#d29922", "#a371f7", "#ff7b72"]
+
+[theme.sidebar]
+backgroundColor = "#0a0e14"
+secondaryBackgroundColor = "#161b22"
+
+[server]
+headless = true
