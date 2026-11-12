@@ -145,7 +145,9 @@ def _render_find_online() -> None:
                     st.session_state.reg_find_relaxed = relaxed
                 except Exception as exc:
                     st.error(f"Search failed: {exc}")
-                    st.session_state.reg_find_candidates = []
+                    # None (not []) so the "no sources found" hint below stays hidden:
+                    # the search never ran, so "try a broader query" would mislead.
+                    st.session_state.reg_find_candidates = None
 
         candidates = st.session_state.get("reg_find_candidates")
         if candidates is None:

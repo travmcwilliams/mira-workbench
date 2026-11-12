@@ -83,7 +83,7 @@ def render_discover_page() -> None:
                 st.session_state.disc_provider = result["provider"]
             except Exception as exc:
                 st.error(f"Discovery failed: {exc}")
-                st.session_state.disc_candidates = []
+                st.session_state.disc_candidates = None  # hide the "none found" hint
 
     candidates = st.session_state.get("disc_candidates")
     if candidates is None:
