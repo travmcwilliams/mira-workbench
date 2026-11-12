@@ -39,3 +39,18 @@ def test_discover_and_campaigns_dropped_results_present():
     assert "pages/0_Results.py" in paths
     assert "pages/9_Campaigns.py" not in paths
 
+
+def test_every_page_link_target_is_registered():
+    """st.page_link / st.switch_page raise StreamlitPageNotFoundError at render
+    time for any page not passed to st.navigation — catch that statically."""
+    import re
+
+    registered = {s.path for s in ALL_SPECS}
+    pat = re.compile(r"st\.(?:page_link|switch_page)\(\s*[\"']([^\"']+\.py)[\"']")
+    bad = []
+    for f in list((_ROOT / "ui").rglob("*.py")) + list((_ROOT / "pages").rglob("*.py")):
+        for target in pat.findall(f.read_text(encoding="utf-8")):
+            if target not in registered:
+                bad.append(f"{f.relative_to(_ROOT)} -> {target}")
+    assert not bad, bad
+

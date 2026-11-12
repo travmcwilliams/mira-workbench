@@ -146,7 +146,8 @@ def _render_landing() -> None:
     with a3:
         l1, l2 = st.columns(2)
         with l1:
-            st.page_link("pages/9_Campaigns.py", label="Browse campaigns", icon="📣")
+            st.page_link("pages/1_Sources_and_Records.py", label="Browse sources",
+                         icon="🗄️")
         with l2:
             st.page_link("pages/8_Investigate.py", label="Start from a question",
                          icon="🔎")
