@@ -145,7 +145,7 @@ def render_stage_card(project: Project, stage: str, *, key_prefix: str | None = 
                 else:
                     st.caption(f"(too large to embed inline: {size / 1e6:.1f} MB)")
             elif path.suffix.lower() in {".png", ".jpg"}:
-                st.image(str(path), caption=str(rel), use_container_width=True)
+                st.image(str(path), caption=str(rel), use_column_width=True)
             elif path.suffix.lower() == ".csv":
                 try:
                     st.dataframe(pd.read_csv(path).head(10), use_container_width=True)

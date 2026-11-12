@@ -36,4 +36,6 @@ def image_gallery(
         col = cols[idx % max_cols]
         with col:
             caption = f"{caption_prefix}{p.name}" if caption_prefix else p.name
-            st.image(str(p), caption=caption, width="stretch")
+            # use_column_width, not width="stretch": the latter needs a newer
+            # Streamlit than the 1.39 pin and raises TypeError there.
+            st.image(str(p), caption=caption, use_column_width=True)

@@ -133,7 +133,7 @@ def _render_artifacts(artifacts: list[Path], key: str) -> None:
             if p.exists():
                 with cols[i % len(cols)]:
                     with _guard(p.name):
-                        st.image(str(p), caption=p.name, use_container_width=True)
+                        st.image(str(p), caption=p.name, use_column_width=True)
 
     for p in htmls:
         if p.exists():
