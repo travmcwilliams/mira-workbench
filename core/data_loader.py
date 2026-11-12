@@ -173,7 +173,12 @@ def suggest_target(
         score = 0
         reason = "numeric feature column"
         if task_type == "classification":
-            if dtype != "categorical":
+            # Class labels are often integer-coded (Titanic's Survived is 0/1), so a
+            # known target or a low-cardinality numeric column is a valid label too.
+            if dtype != "categorical" and not (
+                key in _KNOWN_CLASSIFICATION_TARGETS
+                or (dtype == "numeric" and df[col].nunique(dropna=True) <= 10)
+            ):
                 continue
             score += 5
             reason = "low-cardinality categorical"

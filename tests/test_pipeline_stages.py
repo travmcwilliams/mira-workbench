@@ -620,3 +620,20 @@ def test_suggest_target_for_restaurant_daily(temp_projects_dir):
     assert schema["trading_day_date"] == "datetime"
     suggestion = suggest_target(df, schema, task_type="regression")
     assert suggestion["target_column"] == "labor_pct"
+
+
+def test_suggest_target_classification_accepts_integer_coded_label():
+    """Titanic-shaped data: the label is 0/1 numeric, not a string category."""
+    df = pd.DataFrame({
+        "PassengerId": range(1, 41),
+        "Survived": [0, 1] * 20,
+        "Pclass": [1, 2, 3, 3] * 10,
+        "Sex": ["male", "female"] * 20,
+        "Fare": [7.25 + i for i in range(40)],
+    })
+    schema = {"PassengerId": "id", "Survived": "numeric", "Pclass": "numeric",
+              "Sex": "categorical", "Fare": "numeric"}
+    for task in ("classification", None):
+        suggestion = suggest_target(df, schema, task_type=task)
+        assert suggestion["target_column"] == "Survived", (task, suggestion)
+        assert suggestion["task_type"] == "classification"

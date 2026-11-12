@@ -429,23 +429,46 @@ def _render_records() -> None:
 
 def _after_build(pid: str | None, rows: int, target: str | None,
                  sources: Any) -> None:
+    """Record a finished build; `_render_last_build` shows it on every rerun.
+
+    Builds run inside a button's `if st.button(...)` branch, which is False on the
+    next rerun — so anything drawn here (including an "open" button) would vanish
+    before its own click could be handled. Keep the result in session state.
+    """
     if not pid:
         st.error("No data could be built into a project.")
         if sources:
             st.dataframe(pd.DataFrame(sources), hide_index=True, use_container_width=True)
         return
-    st.success(f"✅ Built project `{pid}` — {rows:,} rows"
-               + (f", suggested target **{target}**" if target else ""))
-    if sources:
+    st.session_state["studio_last_build"] = {
+        "pid": pid, "rows": rows, "target": target, "sources": sources,
+    }
+
+
+def _render_last_build() -> None:
+    built = st.session_state.get("studio_last_build")
+    if not built:
+        return
+    pid = built["pid"]
+    st.success(f"✅ Built project `{pid}` — {built['rows']:,} rows"
+               + (f", suggested target **{built['target']}**" if built["target"] else ""))
+    if built["sources"]:
         with st.expander("Per-source results"):
-            st.dataframe(pd.DataFrame(sources), hide_index=True, use_container_width=True)
+            st.dataframe(pd.DataFrame(built["sources"]), hide_index=True,
+                         use_container_width=True)
     if st.button("➡ Open in pipeline (set active project)", key=f"open_{pid}"):
         try:
             st.session_state.project = Project.load(pid)
-            st.toast(f"Active project set to {pid}")
-            st.rerun()
         except Exception as exc:
             st.error(f"Couldn't load project: {exc}")
+            return
+        st.session_state.pop("studio_last_build", None)
+        try:
+            from ui.project_picker import clear_project_cache
+            clear_project_cache()  # so the new project shows in the sidebar picker
+        except Exception:
+            pass
+        st.switch_page("pages/home.py")
 
 
 # --- main ---------------------------------------------------------------------
@@ -502,6 +525,7 @@ def render_scraping_studio() -> None:
             _render_activity()
         else:
             _render_records()
+        _render_last_build()
 
     with chat_col:
         _render_terminal()
