@@ -29,8 +29,11 @@ playwright install chromium   # optional, only for JavaScript-heavy sites
 streamlit run app.py
 ```
 
-On Windows, `scripts\setup.ps1` does the venv + install, and `launch_mira.bat` starts
-the app.
+**On Windows**, after cloning just double-click `launch_mira.bat` (or run it from a
+Command Prompt in the repo folder). The first run creates `.venv` and installs MIRA
+into it, which takes a few minutes; later runs start straight away and reinstall only
+when `pyproject.toml` changes after a `git pull`. `launch_mira.bat --setup-only`
+installs without starting the app.
 
 The heavy AutoML / profiling stack (PyCaret, XGBoost, LightGBM, CatBoost,
 ydata-profiling, SHAP, ...) is an optional extra because its pins conflict with a
