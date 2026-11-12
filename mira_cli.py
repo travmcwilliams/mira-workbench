@@ -179,7 +179,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     project.save_meta()
 
     # Wire the train/test split strategy into pipeline core for every CLI run.
-    # data_prep now defaults to a leak-safe temporal split (CLAUDE.md), so a bare
+    # data_prep now defaults to a leak-safe temporal split, so a bare
     # `run` is temporal with no flag; --split-strategy / --time-column override
     # and are persisted to stage_settings (provenance) so downstream consumers and
     # repeat runs reproduce the same split. The effective strategy is always

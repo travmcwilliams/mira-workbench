@@ -2,7 +2,6 @@
 stages/data_prep.py
 
 Data preparation stage: train/test split + optional scaling.
-See grok_handoff.md Section 6.6.
 
 Persists splits and scaler to artifacts/prep/ for later use (model, evaluate,
 deploy/inference). The sklearn backend trains on the persisted (scaled) train
@@ -33,7 +32,7 @@ def default_settings(project: Project) -> dict[str, Any]:
         "stratify": True,  # only used for classification
         "scaler": "standard",  # 'standard' | 'minmax' | 'none'
         "random_state": 42,
-        # Leak-safety guardrail (see CLAUDE.md): temporal is the default so a bare
+        # Leak-safety guardrail: temporal is the default so a bare
         # run holds out the most-recent rows and never look-ahead-leaks into a
         # forward-return target. Callers opt into 'random' explicitly for non
         # time-series data. 'random' | 'temporal'.
@@ -85,7 +84,7 @@ def run(project: Project, df: pd.DataFrame | None, settings: dict[str, Any]) -> 
 
     test_size = float(settings.get("test_size", 0.2))
     random_state = int(settings.get("random_state", 42))
-    # Leak-safe default (CLAUDE.md): fall back to temporal when a caller passes a
+    # Leak-safe default: fall back to temporal when a caller passes a
     # partial settings dict straight to run_stage() without merging stage defaults.
     split_strategy = str(settings.get("split_strategy", "temporal")).lower()
     use_stratify = (

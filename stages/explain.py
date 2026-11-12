@@ -2,7 +2,6 @@
 stages/explain.py
 
 Model explainability with SHAP (primary) and permutation importance fallback.
-See grok_handoff.md Section 6.6.
 
 Saves summary.png, bar.png, etc. under artifacts/shap/
 """

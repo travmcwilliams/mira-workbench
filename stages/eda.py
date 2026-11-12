@@ -3,7 +3,6 @@ stages/eda.py
 
 EDA stage: autoviz if enabled, otherwise manual plots (hist, bar, corr, pair).
 Saves PNGs to artifacts/eda/.
-See grok_handoff.md Section 6.6.
 """
 
 from __future__ import annotations

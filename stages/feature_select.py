@@ -2,7 +2,6 @@
 stages/feature_select.py
 
 Feature selection: correlation, variance, RFE, model importance.
-See grok_handoff.md Section 6.6.
 """
 
 from __future__ import annotations

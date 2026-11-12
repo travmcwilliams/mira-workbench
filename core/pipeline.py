@@ -3,7 +3,6 @@ core/pipeline.py
 
 Pipeline orchestration + StageResult.
 Supports Phase 2 (data ingest + profile stage execution).
-See grok_handoff.md Sections 5 and 6.4. Will be extended in later phases.
 """
 
 from __future__ import annotations

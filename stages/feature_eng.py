@@ -2,7 +2,6 @@
 stages/feature_eng.py
 
 Feature engineering: encoding, date features, interactions, log transforms, optional Featuretools.
-See grok_handoff.md Section 6.6.
 
 Persists fitted encoders in artifacts/encoders.pkl for reuse in inference.
 """

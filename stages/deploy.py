@@ -3,7 +3,6 @@ stages/deploy.py
 
 Final deploy stage: package the full preprocessing + model pipeline,
 generate inference template and requirements.
-See grok_handoff.md Section 6.6.
 """
 
 from __future__ import annotations
@@ -38,7 +37,7 @@ def run(project: Project, df: pd.DataFrame | None, settings: dict[str, Any]) -> 
     artifacts: list[Path] = []
 
     # --- Build combined pipeline.pkl for raw-input inference ---
-    # Scale-representation correctness (see CLAUDE.md "honest metrics"): the
+    # Scale-representation correctness: the
     # sklearn backend trains the model on the data_prep *scaled* split, so its
     # inference pipeline must re-apply that same scaler to raw input. The PyCaret
     # backend's saved model is already a self-contained pipeline trained on the

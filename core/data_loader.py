@@ -2,7 +2,7 @@
 core/data_loader.py
 
 Data ingestion and schema detection.
-Implements the interface from grok_handoff.md Section 6.2.
+Loads tabular files and infers column schemas.
 Supports CSV, Excel, Parquet, JSON.
 """
 

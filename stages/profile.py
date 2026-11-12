@@ -2,7 +2,6 @@
 stages/profile.py
 
 ydata-profiling wrapper.
-See grok_handoff.md Section 6.6 for the spec.
 
 Generates a rich HTML profiling report and saves it under the project's artifacts.
 """

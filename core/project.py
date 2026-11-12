@@ -2,7 +2,6 @@
 core/project.py
 
 A single user project. Wraps the folder structure + meta.json + state.db.
-See grok_handoff.md Section 6.1 for the authoritative spec.
 """
 
 from __future__ import annotations

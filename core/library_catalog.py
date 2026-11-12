@@ -1,7 +1,7 @@
 """
 core/library_catalog.py
 
-Library scope management as specified in grok_handoff.md Section 6.3.
+Library scope management for the pipeline.
 
 Defines available libraries, which stages they affect, and helpers for PyCaret model inclusion.
 """

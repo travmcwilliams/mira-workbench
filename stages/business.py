@@ -2,7 +2,6 @@
 stages/business.py
 
 Problem framing stage (text only for now).
-See grok_handoff.md.
 
 This is the natural place for single-restaurant context, e.g.:
 - Goal: Understand and optimize labor cost % at a full-service restaurant

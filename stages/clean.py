@@ -2,7 +2,6 @@
 stages/clean.py
 
 Cleaning stage: missing values, outliers, duplicates, type overrides.
-See grok_handoff.md Section 6.6.
 
 Settings are per-column for missing, global for outliers/duplicates.
 """

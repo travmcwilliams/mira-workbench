@@ -3,7 +3,6 @@ core/exporter.py
 
 Generates a reproducible Jupyter notebook from the project's completed stages
 and their logged settings.
-See grok_handoff.md Section 6.7.
 """
 
 from __future__ import annotations

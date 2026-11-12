@@ -2,7 +2,6 @@
 stages/model.py
 
 PyCaret AutoML modeling stage with sklearn fallback.
-See grok_handoff.md Section 6.6 for the spec.
 """
 
 from __future__ import annotations
