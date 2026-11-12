@@ -80,6 +80,11 @@ div.block-container {{ padding-top:2.2rem; padding-bottom:3rem; }}
 /* buttons */
 .stButton>button {{ background:{ACCENT}; color:#fff; border:0; font-weight:600; }}
 .stButton>button:hover {{ background:{ACCENT_HOVER}; }}
+/* Streamlit colors a focused/active button's text with primaryColor — the same
+   blue as our button fill — which left only the emoji visible after a click. */
+.stButton>button:hover, .stButton>button:focus, .stButton>button:focus-visible,
+.stButton>button:active {{ color:#fff !important; }}
+.stButton>button:focus:not(:active) {{ border:0; }}
 /* metrics */
 div[data-testid="stMetric"] {{ background:{BG_ELEV}; border:1px solid {BORDER};
                                border-radius:10px; padding:10px 14px; }}

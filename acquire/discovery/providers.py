@@ -6,9 +6,9 @@ Pluggable web-search backend for source discovery.
 - SerperProvider  — google.serper.dev (needs SERPER_API_KEY). Ported from the
   CountyIQ scripts (scripts/discover_state_urls.py, county_url_finder.py) which
   found Serper to be the reliable backend.
-- DuckDuckGoProvider — keyless scrape of html.duckduckgo.com/html/. No API key,
-  fully self-contained, but can be rate-limited/blocked (CountyIQ's documented
-  caveat for keyless search).
+- DuckDuckGoProvider / MojeekProvider — keyless HTML scrapes. No API key, but
+  both can answer automated traffic with a captcha; that is detected and raised
+  as ``SearchBlocked`` rather than passed off as "no results".
 
 `get_provider()` picks Serper when a key is present, else falls back to DDG, so
 the feature works out of the box with no key and gets more robust if a key is set.
@@ -34,6 +34,21 @@ except Exception:
 _UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+)
+
+
+class SearchBlocked(RuntimeError):
+    """A keyless engine served a bot check (captcha) instead of results.
+
+    Distinct from "no results": the query never ran, so rephrasing won't help.
+    """
+
+
+BLOCKED_HELP = (
+    "The free search engines (Mojeek, DuckDuckGo) are showing a captcha to this "
+    "machine instead of results, so no query will work right now. Set a "
+    "SERPER_API_KEY (serper.dev, free tier) and restart MIRA, try again later, or "
+    "paste dataset URLs into Scraping Studio's URL compiler."
 )
 
 
@@ -115,7 +130,14 @@ class DuckDuckGoProvider(SearchProvider):
             timeout=15,
         )
         resp.raise_for_status()
+        if self.is_blocked(resp.status_code, resp.text):
+            raise SearchBlocked("duckduckgo")
         return self.parse(resp.text, num=num)
+
+    @staticmethod
+    def is_blocked(status: int, page_html: str) -> bool:
+        """DDG answers bots with HTTP 202 and an 'anomaly' captcha modal."""
+        return status == 202 or "anomaly-modal" in page_html
 
     def parse(self, page_html: str, num: int = 8) -> list[SearchResult]:
         """Parse a DDG HTML results page. Split out for offline testing."""
@@ -164,6 +186,8 @@ class MojeekProvider(SearchProvider):
                                headers=headers, timeout=15)
             last_status = resp.status_code
             if resp.status_code == 200:
+                if self.is_blocked(resp.text):
+                    raise SearchBlocked("mojeek")
                 return self.parse(resp.text, num=num)
             if resp.status_code in (403, 429) and attempt == 0:
                 time.sleep(2.0)
@@ -171,6 +195,11 @@ class MojeekProvider(SearchProvider):
             break
         resp.raise_for_status()
         raise requests.HTTPError(f"Mojeek status {last_status}")
+
+    @staticmethod
+    def is_blocked(page_html: str) -> bool:
+        """Mojeek answers bots with HTTP 200 and a page titled 'Captcha'."""
+        return "<title>Captcha</title>" in page_html or "captcha-wrap" in page_html
 
     def parse(self, page_html: str, num: int = 8) -> list[SearchResult]:
         out: list[SearchResult] = []
@@ -197,14 +226,20 @@ class KeylessProvider(SearchProvider):
         self.engines = engines or [MojeekProvider(), DuckDuckGoProvider()]
 
     def search(self, query: str, num: int = 8) -> list[SearchResult]:
+        blocked = 0
         for eng in self.engines:
             try:
                 results = eng.search(query, num=num)
+            except SearchBlocked:
+                blocked += 1
+                continue
             except Exception:
                 continue
             if results:
                 self.name = f"keyless:{eng.name}"
                 return results
+        if blocked and blocked == len(self.engines):
+            raise SearchBlocked("all keyless engines")
         return []
 
 
@@ -230,9 +265,15 @@ def multi_search(
     num: int = 8,
     sleep_between: float = 1.2,
 ) -> list[SearchResult]:
-    """Run several queries, de-dupe by URL, polite sleep between calls."""
+    """Run several queries, de-dupe by URL, polite sleep between calls.
+
+    Raises ``SearchBlocked`` (with a user-facing explanation) when nothing came
+    back because the engine served a captcha, so callers don't report a blocked
+    search as "no results — try a broader query".
+    """
     seen: set[str] = set()
     merged: list[SearchResult] = []
+    blocked = False
     for i, q in enumerate(queries):
         if i:
             time.sleep(sleep_between)
@@ -241,7 +282,12 @@ def multi_search(
                 if r.url not in seen:
                     seen.add(r.url)
                     merged.append(r)
+        except SearchBlocked:
+            blocked = True
+            break  # the engine won't unblock between our queries; stop hammering it
         except Exception:
             # One bad query shouldn't kill discovery; keep going.
             continue
+    if blocked and not merged:
+        raise SearchBlocked(BLOCKED_HELP)
     return merged

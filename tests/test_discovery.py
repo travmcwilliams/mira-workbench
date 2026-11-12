@@ -19,8 +19,12 @@ from discovery.providers import (  # noqa: E402
     DuckDuckGoProvider,
     KeylessProvider,
     MojeekProvider,
+    SearchBlocked,
+    SearchProvider,
+    SearchResult,
     SerperProvider,
     get_provider,
+    multi_search,
 )
 from discovery.scoring import (  # noqa: E402
     classify_scraper_type,
@@ -105,6 +109,50 @@ def test_mojeek_parse():
     assert results[0].url == "https://data.gov/pop.csv"
     assert results[0].title == "Population CSV dataset"
     assert "population" in results[0].snippet.lower()
+
+
+# --- captcha / bot-check detection ---------------------------------------------
+
+def test_captcha_pages_are_detected():
+    assert MojeekProvider.is_blocked("<html><head><title>Captcha</title></head></html>")
+    assert not MojeekProvider.is_blocked(MOJEEK_HTML)
+    assert DuckDuckGoProvider.is_blocked(202, "<div></div>")
+    assert DuckDuckGoProvider.is_blocked(200, '<div class="anomaly-modal__box">')
+    assert not DuckDuckGoProvider.is_blocked(200, DDG_HTML)
+
+
+class _Blocked(SearchProvider):
+    name = "blocked"
+
+    def search(self, query, num=8):
+        raise SearchBlocked(self.name)
+
+
+class _Empty(SearchProvider):
+    name = "empty"
+
+    def search(self, query, num=8):
+        return []
+
+
+class _Hit(SearchProvider):
+    name = "hit"
+
+    def search(self, query, num=8):
+        return [SearchResult(url="https://example.org/data.csv")]
+
+
+def test_keyless_raises_only_when_every_engine_is_blocked():
+    with pytest.raises(SearchBlocked):
+        KeylessProvider([_Blocked(), _Blocked()]).search("q")
+    assert KeylessProvider([_Blocked(), _Hit()]).search("q")[0].url.endswith(".csv")
+    assert KeylessProvider([_Blocked(), _Empty()]).search("q") == []  # genuinely empty
+
+
+def test_multi_search_reports_block_instead_of_empty():
+    with pytest.raises(SearchBlocked, match="captcha"):
+        multi_search(_Blocked(), ["a", "b"], sleep_between=0)
+    assert multi_search(_Empty(), ["a", "b"], sleep_between=0) == []
 
 
 # --- probe ---------------------------------------------------------------------
