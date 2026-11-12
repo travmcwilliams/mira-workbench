@@ -89,13 +89,13 @@ def run(project: Project, df: pd.DataFrame | None, settings: dict[str, Any]) -> 
         import importlib.util
 
         if importlib.util.find_spec("ydata_profiling") is None:
-            hint = "Run: pip install ydata-profiling"
+            reason = "ydata-profiling not installed (pip install -e \".[automl]\")"
         else:
-            hint = (
-                "It is installed but failed to import against the current "
-                "SciPy/pandas/NumPy versions"
-            )
-        return StageResult(status="error", error=f"ydata-profiling unavailable: {e}. {hint}")
+            reason = (f"ydata-profiling failed to import against the current "
+                      f"SciPy/pandas/NumPy versions: {e}")
+        # It's an optional extra, so a plain install must still get through the
+        # pipeline: write a basic pandas profile instead of failing the stage.
+        return _basic_profile(project, df, settings, reason)
 
     minimal = len(df.columns) > settings.get("minimal_threshold", 100)
     title = settings.get("title") or project.meta.get("name", "Dataset Profile")
@@ -148,6 +148,60 @@ def run(project: Project, df: pd.DataFrame | None, settings: dict[str, Any]) -> 
         output_df=df,  # profile does not transform data
         artifacts=[out_path],
         summary=summary,
+    )
+
+
+def _basic_profile(project: Project, df: pd.DataFrame, settings: dict[str, Any],
+                   reason: str) -> StageResult:
+    """Dependency-free profile: per-column type, missingness, cardinality, stats."""
+    import html
+
+    title = settings.get("title") or project.meta.get("name", "Dataset Profile")
+    n = len(df)
+    overview = pd.DataFrame({
+        "dtype": df.dtypes.astype(str),
+        "missing": df.isna().sum(),
+        "missing %": (df.isna().mean() * 100).round(1),
+        "distinct": df.nunique(dropna=True),
+        "top value": [
+            (str(s.mode(dropna=True).iloc[0])[:40] if s.notna().any() else "")
+            for _, s in df.items()
+        ],
+    })
+    numeric = df.select_dtypes("number")
+    stats_html = (
+        numeric.describe().T.round(3).to_html(classes="t")
+        if not numeric.empty else "<p>No numeric columns.</p>"
+    )
+    page = f"""<!doctype html><html><head><meta charset="utf-8">
+<title>{html.escape(str(title))}</title><style>
+body{{font-family:system-ui,sans-serif;margin:24px;color:#1f2328}}
+.t{{border-collapse:collapse;font-size:13px;margin-bottom:24px}}
+.t th,.t td{{border:1px solid #d0d7de;padding:4px 8px;text-align:right}}
+.t th{{background:#f6f8fa}} .note{{color:#59636e;font-size:13px}}
+</style></head><body>
+<h1>{html.escape(str(title))}</h1>
+<p>{n:,} rows &middot; {len(df.columns)} columns &middot;
+{int(df.duplicated().sum()):,} duplicate rows</p>
+<p class="note">Basic profile ({html.escape(reason)}).</p>
+<h2>Columns</h2>{overview.to_html(classes="t")}
+<h2>Numeric summary</h2>{stats_html}
+</body></html>"""
+    out_path = project.artifact_path("profile_report.html")
+    out_path.write_text(page, encoding="utf-8")
+    return StageResult(
+        status="success",
+        output_df=df,
+        artifacts=[out_path],
+        summary={
+            "rows": int(n),
+            "cols": int(len(df.columns)),
+            "basic_profile": True,
+            "basic_profile_reason": reason,
+            "report_path": str(out_path.relative_to(project.root))
+            if out_path.is_relative_to(project.root)
+            else str(out_path),
+        },
     )
 
 

@@ -637,3 +637,18 @@ def test_suggest_target_classification_accepts_integer_coded_label():
         suggestion = suggest_target(df, schema, task_type=task)
         assert suggestion["target_column"] == "Survived", (task, suggestion)
         assert suggestion["task_type"] == "classification"
+
+
+def test_profile_falls_back_without_ydata(temp_projects_dir, monkeypatch):
+    """ydata-profiling is an optional extra; a plain install must not stop at stage 1."""
+    import sys
+
+    monkeypatch.setitem(sys.modules, "ydata_profiling", None)  # import -> ImportError
+    df = pd.DataFrame({"a": [1, 2, None, 4], "b": ["x", "y", "x", None]})
+    project = Project.create(name="Profile fallback", task_type="regression")
+    project.set_raw_data(df)
+    result = Pipeline(project).run_stage("profile")
+    assert result.status == "success", result.error
+    assert result.summary["basic_profile"] is True
+    report = result.artifacts[0].read_text(encoding="utf-8")
+    assert "Basic profile" in report and "<table" in report
