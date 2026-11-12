@@ -483,10 +483,13 @@ def render_scraping_studio() -> None:
                         _after_build(proj.id, len(df), None, None)
 
         default_mode = 1 if kind == "url" else 0
-        mode = st.segmented_control(
+        # A horizontal radio, not a segmented control: that widget needs
+        # Streamlit >= 1.40 and pyproject pins 1.39.*.
+        mode = st.radio(
             "Tool",
             ["🔎 Discover", "🔗 URL Compiler", "📊 Activity", "🗄 Records"],
-            default=["🔎 Discover", "🔗 URL Compiler", "📊 Activity", "🗄 Records"][default_mode],
+            index=default_mode,
+            horizontal=True,
             key="studio_mode",
         )
 
